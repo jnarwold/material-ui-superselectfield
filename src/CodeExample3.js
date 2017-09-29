@@ -145,7 +145,6 @@ class CodeExample extends Component {
           elementHeight={58}
           selectionsRenderer={this.handleCustomDisplaySelections('state31')}
           style={{ width: 300, marginTop: 20, marginRight: 40 }}
-          useDialogWrapper={true}
         >
           {countriesNodeList}
         </SuperSelectField>
