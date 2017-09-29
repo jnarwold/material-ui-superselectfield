@@ -8,11 +8,15 @@ import PropTypes from 'prop-types'
 import { findDOMNode } from 'react-dom'
 import InfiniteScroller from 'react-infinite'
 import Popover from 'material-ui/Popover/Popover'
+import Dialog from 'material-ui/Dialog/Dialog'
 import TextField from 'material-ui/TextField/TextField'
 import ListItem from 'material-ui/List/ListItem'
 import CheckedIcon from 'material-ui/svg-icons/navigation/check'
 import UnCheckedIcon from 'material-ui/svg-icons/toggle/check-box-outline-blank'
 import DropDownArrow from 'material-ui/svg-icons/navigation/arrow-drop-down'
+import './SuperSelectField.css'
+import FontAwesome from 'react-fontawesome'
+import 'font-awesome/css/font-awesome.css'
 
 // ================================================================
 // =========================  Utilities  ==========================
@@ -432,7 +436,7 @@ class SelectField extends Component {
       style, menuStyle, elementHeight, innerDivStyle, selectedMenuItemStyle, menuGroupStyle, menuFooterStyle,
       floatingLabelStyle, floatingLabelFocusStyle, underlineStyle, underlineFocusStyle,
       autocompleteUnderlineStyle, autocompleteUnderlineFocusStyle,
-      checkedIcon, unCheckedIcon, hoverColor, checkPosition
+      checkedIcon, unCheckedIcon, hoverColor, checkPosition, useDialogWrapper
     } = this.props
 
     // Default style depending on Material-UI context (muiTheme)
@@ -528,37 +532,8 @@ class SelectField extends Component {
     const scrollableStyle = { overflowY: nb2show >= menuItems.length ? 'hidden' : 'scroll' }
     const menuWidth = this.root ? this.root.clientWidth : null
 
-    return (
-      <div
-        ref={ref => (this.root = ref)}
-        tabIndex='0'
-        onFocus={this.onFocus}
-        onBlur={this.onBlur}
-        onKeyDown={this.handleKeyDown}
-        onClick={this.handleClick}
-        title={!this.state.itemsLength ? 'Nothing to show' : ''}
-        style={{
-          cursor: disabled ? 'not-allowed' : 'pointer',
-          color: disabled ? palette.disabledColor : palette.textColor,
-          ...style
-        }}
-      >
-
-        <SelectionsPresenter
-          isFocused={this.state.isFocused}
-          isOpen={this.state.isOpen}
-          disabled={disabled}
-          hintText={hintText}
-          muiTheme={this.context.muiTheme}
-          selectedValues={this.state.selectedItems}
-          selectionsRenderer={selectionsRenderer}
-          floatingLabel={floatingLabel}
-          floatingLabelStyle={floatingLabelStyle}
-          floatingLabelFocusStyle={floatingLabelFocusStyle}
-          underlineStyle={underlineStyle}
-          underlineFocusStyle={underlineFocusStyle}
-        />
-
+    const renderPopover = () => {
+      return (
         <Popover
           open={this.state.isOpen}
           anchorEl={this.root}
@@ -604,7 +579,93 @@ class SelectField extends Component {
             </footer>
           }
         </Popover>
+      )
+    }
 
+    const renderDialog = () => {
+      return (
+        <Dialog 
+          open={this.state.isOpen}
+          onRequestClose={this.closeMenu}
+          contentClassName={'dialogContent'}
+          bodyClassName={'dialogBody'}
+          paperClassName={'dialogPaper'}>
+          {this.state.showAutocomplete &&
+              <div>
+                <TextField
+                  ref={ref => (this.searchTextField = ref)}
+                  value={this.state.searchText}
+                  hintText={hintTextAutocomplete}
+                  onChange={this.handleTextFieldAutocompletionFiltering}
+                  onKeyDown={this.handleTextFieldKeyDown}
+                  className={'dialogSearchField'}
+                  underlineStyle={autocompleteUnderlineStyle}
+                  underlineFocusStyle={autocompleteUnderlineFocusStyle}
+                />
+                <FontAwesome name='times'
+                  size='2x'
+                  onClick={this.closeMenu} 
+                  className={'dialogCloseIcon'}/>
+              </div>
+          }
+          <div
+            ref={ref => (this.menu = ref)}
+            onKeyDown={this.handleMenuKeyDown}
+            style={{ ...menuStyle }}
+          >
+            {menuItems.length
+              ? <InfiniteScroller
+                elementHeight={elementHeight}
+                containerHeight={window.innerHeight}
+                styles={{ scrollableStyle }}
+              >
+                {menuItems}
+              </InfiniteScroller>
+              : <ListItem primaryText={noMatchFound} style={{ cursor: 'default', padding: '10px 16px' }} disabled />
+            }
+          </div>
+          {multiple &&
+            <footer style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+              <div onClick={this.closeMenu} style={menuFooterStyle}>
+                {menuCloseButton}
+              </div>
+            </footer>
+          }
+        </Dialog>
+      )
+    }
+
+    return (
+      <div
+        ref={ref => (this.root = ref)}
+        tabIndex='0'
+        onFocus={this.onFocus}
+        onBlur={this.onBlur}
+        onKeyDown={this.handleKeyDown}
+        onClick={this.handleClick}
+        title={!this.state.itemsLength ? 'Nothing to show' : ''}
+        style={{
+          cursor: disabled ? 'not-allowed' : 'pointer',
+          color: disabled ? palette.disabledColor : palette.textColor,
+          ...style
+        }}
+      >
+        { useDialogWrapper ? renderDialog() : renderPopover() }
+
+        <SelectionsPresenter
+          isFocused={this.state.isFocused}
+          isOpen={this.state.isOpen}
+          disabled={disabled}
+          hintText={hintText}
+          muiTheme={this.context.muiTheme}
+          selectedValues={this.state.selectedItems}
+          selectionsRenderer={selectionsRenderer}
+          floatingLabel={floatingLabel}
+          floatingLabelStyle={floatingLabelStyle}
+          floatingLabelFocusStyle={floatingLabelFocusStyle}
+          underlineStyle={underlineStyle}
+          underlineFocusStyle={underlineFocusStyle}
+        />
       </div>
     )
   }
@@ -686,6 +747,7 @@ SelectField.propTypes = {
   hintTextAutocomplete: PropTypes.string,
   noMatchFound: PropTypes.string,
   showAutocompleteThreshold: PropTypes.number,
+  useDialogWrapper: PropTypes.bool,
   elementHeight: PropTypes.oneOfType([
     PropTypes.number,
     PropTypes.arrayOf(PropTypes.number)
@@ -738,6 +800,7 @@ SelectField.defaultProps = {
   hintTextAutocomplete: 'Type something',
   noMatchFound: 'No match found',
   showAutocompleteThreshold: 10,
+  useDialogWrapper: false,
   elementHeight: 36,
   autocompleteFilter: (searchText, text) => {
     if (!text || (typeof text !== 'string' && typeof text !== 'number')) return false
