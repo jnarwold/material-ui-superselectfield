@@ -26,6 +26,12 @@
   position: relative !important;
   top: 2px;
   margin-left: 15px;
+  font-size: 2em;
+  font-style:normal;
+}
+
+.dialogCloseIcon::before{
+  content: "\2716";
 }
 
 .dialogSearchField>div{
