@@ -15,8 +15,7 @@ import CheckedIcon from 'material-ui/svg-icons/navigation/check'
 import UnCheckedIcon from 'material-ui/svg-icons/toggle/check-box-outline-blank'
 import DropDownArrow from 'material-ui/svg-icons/navigation/arrow-drop-down'
 import './SuperSelectField.css'
-import FontAwesome from 'react-fontawesome'
-import 'font-awesome/css/font-awesome.css'
+import CloseIcon from 'material-ui-icons/Close'
 
 // ================================================================
 // =========================  Utilities  ==========================
@@ -602,7 +601,7 @@ class SelectField extends Component {
                   underlineStyle={autocompleteUnderlineStyle}
                   underlineFocusStyle={autocompleteUnderlineFocusStyle}
                 />
-                <FontAwesome name='times'
+                <CloseIcon name='times'
                   size='2x'
                   onClick={this.closeMenu} 
                   className={'dialogCloseIcon'}/>

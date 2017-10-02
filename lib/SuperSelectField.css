@@ -1,0 +1,33 @@
+.dialogContent{
+  width: 100% !important;
+  transform: translate(0, 0) !important;
+  position: absolute !important;
+  top: 0 !important;
+  height: 100vh !important;
+}
+
+.dialogBody{
+  padding: 0 !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+
+.dialogPaper{
+  overflow: auto !important;
+  height: 100vh !important;
+  width: 100vw !important;
+}
+
+.dialogSearchField {
+  width: calc(100vw - 64px) !important;
+}
+
+.dialogCloseIcon{
+  position: relative !important;
+  top: 2px;
+  margin-left: 15px;
+}
+
+.dialogSearchField>div{
+  left: 16px !important;
+}
